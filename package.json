@@ -1,5 +1,28 @@
 {
   "dependencies": {
-    "node-fetch": "^3.2.10"
-  }
+    "crypto": "^1.0.1",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^2.6.6"
+  },
+  "name": "@itsrune/opencloud.js",
+  "version": "1.0.0",
+  "description": "A simple NodeJS supported OpenCloud api wrapper similarly typed to roblox lua's functions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ItsRune/opencloud.js.git"
+  },
+  "keywords": [
+    "roblox",
+    "opencloud"
+  ],
+  "author": "ItsRune",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ItsRune/opencloud.js/issues"
+  },
+  "homepage": "https://github.com/ItsRune/opencloud.js#readme"
 }
