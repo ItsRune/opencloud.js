@@ -15,17 +15,6 @@ class Universe {
         this.MessagingService = new MessagingService(this);
     };
 
-    // /**
-    //  * Initializes and generates the Universe object.
-    //  * @param {Number} universeId 
-    //  * @param {String} apiKey 
-    //  * @param {Boolean} _dontCreate 
-    //  * @returns Universe
-    //  */
-    // static async generate(universeId, apiKey) {
-        
-    // }
-
     /**
      * Sends a request with the api key to the universe.
      * @param {String} url 
@@ -58,13 +47,12 @@ class Universe {
                 body
             });
 
-            if (data.status === 200) {
-                return await data.json();
-            };
+            if (data.status === 401) throw new Error("Error: Invalid API Key");
+            if (data.status === 403) throw new Error("Error: Universe does not permit this service.");
+            if (data.status >= 500) throw new Error("Error: Internal Server Error");
+            if (data.status === 200) return await data.json();
 
-            console.log(data);
-
-            throw new Error("Not found");
+            throw new Error(data.statusText);
         } catch(error) {
             throw error;
         };

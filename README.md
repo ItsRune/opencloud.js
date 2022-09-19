@@ -1,5 +1,7 @@
 # opencloud.js
 
+[![Experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
+
 ## Table of Contents
 
 - [About](#about)
@@ -9,7 +11,7 @@
         - [SetAsync](#ds-setasync)
         - [IncrementAsync](#ds-incasync)
         - [RemoveAsync](#ds-removeasync)
-        - [GetDataStores](#ds-getkeys)
+        - [ListDataStoresAsync](#ds-getkeys)
     - [MessagingService](#messages)
     - [Place Management](#place-manage)
 
@@ -27,7 +29,7 @@ npm i @itsrune/opencloud.js
 
 ## Usage <a name = "usage"></a>
 
-To start, I'll show you how to create a new universe.
+To start, you need to create a new Universe using the package. This is simple as demonstrated below:
 ```js
 const OpenCloud = require('@itsrune/opencloud.js');
 const Universe = new OpenCloud(000000, "API_KEY");
@@ -39,7 +41,6 @@ This `Universe` class holds services within itself and caches your api key, so y
 
 Datastores work just like with roblox. First we need to get the datastore itself then we are able to use it.
 ```js
-const Universe = new OpenCloud(000000, "API_KEY");
 const DataStore = Universe.DataStoreService.GetDataStore("Coins");
 ```
 
@@ -112,6 +113,6 @@ try {
 };
 ```
 
-## Place Management <a name = "place-manage"></a> [![Experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
+## Place Management <a name = "place-manage"></a>
 
 Not Implemented for use.
