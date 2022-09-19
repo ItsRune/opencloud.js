@@ -17,11 +17,14 @@ class MessagingService {
         const url = this._baseurl + `/topics/${topic}`;
 
         try {
-            return await this._universe._fetch(url, "POST", {
+            const res = await this._universe._fetch(url, "POST", {
                 message: message
             }, {
                 "Content-Type": "application/text"
             });
+
+            if (res.success) return {success: true, error: null};
+            throw new Error({success: res.status, error: res.statusText});
         } catch(error) {
             throw error;
         };

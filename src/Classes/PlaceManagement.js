@@ -18,11 +18,14 @@ class PlaceManagement {
     async PublishAsync(placeId, routeToFile) {
         try {
             const data = await fs.readFileSync(routeToFile);
-            return await this._universe._fetch(this._baseurl + "/publish", "POST", {
+            const res = await this._universe._fetch(this._baseurl + "/publish", "POST", {
                 
             }, {
                 "Content-Type": "application/xml",
             });
+
+            if (res.versionNumber) return {success: true, versionNumber: res.versionNumber, error: null};
+            throw new Error({success: res.status, error: res.statusText});
         } catch(error) {
             throw error;
         };
@@ -49,8 +52,8 @@ class PlaceManagement {
             "Content-Type": "application/xml",
         });
 
-        if (res.status === 200) return res.versionNumber;
-        throw new Error({Status: res.status, Message: res.statusText});
+        if (res.versionNumber) return {success: true, versionNumber: res.versionNumber, error: null};
+        throw new Error({success: res.status, error: res.statusText});
     };
 }
 
