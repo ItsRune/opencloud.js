@@ -39,7 +39,7 @@ class Universe {
 
             if (body) {
                 body = JSON.stringify(body);
-            }
+            };
 
             const data = await fetch(url, {
                 method,
@@ -50,9 +50,16 @@ class Universe {
             if (data.status === 401) throw new Error("Error: Invalid API Key");
             if (data.status === 403) throw new Error("Error: Universe does not permit this service.");
             if (data.status >= 500) throw new Error("Error: Internal Server Error");
-            if (data.status === 200) return await data.json();
+            if (data.status === 200) {
+                try {
+                    const json = await data.json();
+                    return json;
+                } catch(error) {
+                    return { success:true, error:null }
+                }
+            }
 
-            throw new Error(data.statusText);
+            throw new Error(`${data.statusText} (Code: ${data.status})`);
         } catch(error) {
             throw error;
         };

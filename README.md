@@ -14,6 +14,11 @@
         - [ListDataStoresAsync](#ds-getkeys)
     - [MessagingService](#messages)
     - [Place Management](#place-manage)
+        - [PublishAsync](#pm-publish)
+        - [SaveAsync](#pm-save)
+    - [Pagination](#pagination)
+        - [GetNextPageAsync](#p-gnpa)
+        - [GetPreviousPageAsync](#p-gppa)
 
 ## About <a name = "about"></a>
 
@@ -45,7 +50,7 @@ const DataStore = Universe.DataStoreService.GetDataStore("Coins");
 ```
 
 ### GetAsync <a name = "ds-getasync"></a>
-Once you've gotten the datastore, you can then increment / set / get async to it. All requests to the api are asynchronous, make sure you handle their `Promise`s appropriately.
+Once you've gotten the datastore, you can then increment / set / get async to it. All requests to the api are asynchronous, make sure you handle their Promise's appropriately.
 
 ```js
 DataStore.GetAsync("my-datastore-key").then((myCoins) => {
@@ -86,10 +91,10 @@ try {
 
 ### GetDataStores <a name = "ds-getkeys"></a>
 
-Too lazy to go into studio? Want to list your datastores on a front-end application? No problem! `GetDataStores` would be your function for this!
+Too lazy to go into studio? Want to list your datastores on a front-end application? No problem! `ListDataStoresAsync` would be your function for this!
 ```js
 try {
-    const DataStores = await Universe.DataStoreService.GetDataStores();
+    const DataStorePages = await Universe.DataStoreService.ListDataStoresAsync();
 } catch(err) {
     console.error(err);
 }
@@ -115,4 +120,61 @@ try {
 
 ## Place Management <a name = "place-manage"></a>
 
-Not Implemented for use.
+The place management api is a powerful api that allows developers to publish / save roblox games to an experience's place from an external source.
+
+### PublishAsync <a name = "pm-publish"></a>
+
+Publishing a place is as simple as it seems. Go to the Place Management service within the Universe (`Universe.PlaceManagementService`) and call PublishAsync with a `placeId` and `routeToRbxFile`.
+
+```js
+try {
+    await PlaceManagementService.PublishAsync(0000, `${__dirname}/place.rbxlx`);
+} catch(err) {
+    console.error(err);
+}
+```
+
+### SaveAsync <a name = "pm-save"></a>
+
+SaveAsync works just like PublishAsync except instead it saves the place rather than instantly publishing it. This takes the same parameters as [PublishAsync](#pm-publish)
+
+```js
+try {
+    await PlaceManagementService.SaveAsync(0000, `${__dirname}/place.rbxlx`);
+} catch(err) {
+    console.error(err);
+}
+```
+
+## Pagination <a name = "pagination"></a>
+
+Pagination is the process that is used to divide a large data into smaller discrete pages. Roblox uses pagination with almost all apis that require a `Cursor` parameter within their urls. 
+
+### GetNextPageAsync <a name = "p-gnpa"></a>
+This function is responsible for getting the next page of data and returning both it's data and the cursor associated to that data. This data will always be returned as an Array.
+
+```js
+try {
+    const DataStore = (new Universe(00000, "APIKEY")).DataStoreService;
+    const pages = await DataStore.ListDataStoresAsync();
+
+    const [nextPage, cursor] = await pages.GetNextPageAsync();
+} catch(err) {
+    console.error(err);
+}
+```
+
+### GetPreviousPageAsync <a name = "p-gppa"></a>
+Unlike `GetNextPageAsync`, this function gets the previous page. Note: Using this function before grabbing the next page will throw an error!
+
+```js
+try {
+    const DataStore = (new Universe(00000, "APIKEY")).DataStoreService;
+    const pages = await DataStore.ListDataStoresAsync();
+
+    const [nextPage, cursor] = await pages.GetNextPageAsync();
+    const [prevPage, cursor] = await pages.GetPreviousPageAsync();
+} catch(err) {
+    console.error(err);
+};
+```

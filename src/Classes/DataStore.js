@@ -42,7 +42,7 @@ class DataStore {
      * Increments an integer value of a datastore key by the amount.
      * @param {String} key 
      * @param {Number} amount 
-     * @returns Request Data
+     * @returns { success: Boolean, error: String }
      */
     async IncrementAsync(key, amount) {
         if (!Number(amount)) throw new Error("amount must be a number");

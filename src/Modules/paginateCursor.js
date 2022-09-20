@@ -1,58 +1,63 @@
 const fetch = require('node-fetch');
 
 class PaginateCursor {
-    constructor(url, method, headers, body) {
+    constructor(url, method, headers, body, dataName = "datastores") {
         this._url = url;
         this._method = method;
         this._headers = headers;
         this._body = (method !== "GET" && method !== "HEAD") ? JSON.stringify(body) || "" : undefined;
-        this._data = [];
-        this._page = 0;
-        this._nextPageCursor = null;
-        this._prevPageCursor = null;
-
-        this.#GetData().then(() => {
-            this.GetNextPage = () => {
-                this._page++;
-                return this._data[this._page];
-            };
-
-            this.GetPreviousPage = () => {
-                this._page--;
-                return this._data[this._page];
-            };
-        }).catch(err => { throw new Error(err); });
+        this._nextPageCursor = "";
+        this._cursorCache = [];
+        this._cursorIndex = 0;
+        this._dataName = dataName;
     };
 
-    async #GetData() {
-        while (this._nextPageCursor !== null) {
-            try {
-                const url = (this._prevPageCursor !== null && this._nextPageCursor !== null) ? this._url + `?cursor=${this._nextPageCursor}` : this._url;
-                const res = await fetch(url, {
-                    method: this._method,
-                    headers: this._headers,
-                    body: this._body
-                });
-    
-                if (res.status === 200) {
-                    const data = await res.json();
-
-                    this._data.push([...data.data]);
-    
-                    if (data.nextPageCursor === null) {
-                        this._nextPageCursor = null;
-                        break;
-                    };
-                };
-
-                this._prevPageCursor = this._nextPageCursor;
-                this._nextPageCursor = data.nextPageCursor;
-            } catch(error) {
-                throw error;
+    /**
+     * Returns the data from the next page and caches the cursor.
+     * @returns {Promise<Array>} Next Page
+     */
+    async GetNextPageAsync() {
+        try {
+            const url = (this._cursorIndex === 0) ? this._url : this._url + `?cursor=${this._nextPageCursor}`;
+            const data = await fetch(url, {
+                method: this._method,
+                headers: this._headers,
+                body: this._body
+            });
+            const json = await data.json();
+            
+            if (json.nextPageCursor !== '') {
+                this._cursorCache.push(json.nextPageCursor);
+                this._cursorIndex++;
             };
-        };
+            
+            return json[this._dataName];
+        } catch(error) {
+            throw error;
+        }
+    };
 
-        return this._data;
+    /**
+     * Returns the data from the previous page.
+     * @returns {Promise<Array>} Previous Page
+     */
+    async GetPreviousPageAsync() {
+        try {
+            this._cursorIndex--;
+            this._nextPageCursor = this._cursorCache[this._cursorIndex] || null;
+            
+            const url = (this._cursorIndex === 0) ? this._url : this._url + `?cursor=${this._nextPageCursor}`;
+            const data = await fetch(url, {
+                method: this._method,
+                headers: this._headers,
+                body: this._body
+            });
+            
+            const json = await data.json();
+            return json[this._dataName];
+        } catch(error) {
+            throw error;
+        };
     };
 };
 
