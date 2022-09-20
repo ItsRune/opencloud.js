@@ -43,6 +43,7 @@ class PaginateCursor {
      */
     async GetPreviousPageAsync() {
         try {
+            if (this._cursorIndex === 0) throw new Error("Error: No previous page.");
             this._cursorIndex--;
             this._nextPageCursor = this._cursorCache[this._cursorIndex] || null;
             

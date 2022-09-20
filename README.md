@@ -158,7 +158,7 @@ try {
     const DataStore = (new Universe(00000, "APIKEY")).DataStoreService;
     const pages = await DataStore.ListDataStoresAsync();
 
-    const [nextPage, cursor] = await pages.GetNextPageAsync();
+    const data = await pages.GetNextPageAsync();
 } catch(err) {
     console.error(err);
 }
@@ -172,8 +172,8 @@ try {
     const DataStore = (new Universe(00000, "APIKEY")).DataStoreService;
     const pages = await DataStore.ListDataStoresAsync();
 
-    const [nextPage, cursor] = await pages.GetNextPageAsync();
-    const [prevPage, cursor] = await pages.GetPreviousPageAsync();
+    const nextData = await pages.GetNextPageAsync();
+    const prevData = await pages.GetPreviousPageAsync();
 } catch(err) {
     console.error(err);
 };
