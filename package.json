@@ -2,10 +2,10 @@
   "dependencies": {
     "crypto": "^1.0.1",
     "fs": "^0.0.1-security",
-    "node-fetch": ">=2.6.7"
+    "node-fetch": "^2.6.6"
   },
   "name": "@itsrune/opencloud.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple NodeJS supported OpenCloud api wrapper similarly typed to roblox lua's functions.",
   "main": "index.js",
   "scripts": {
