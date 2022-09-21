@@ -1,7 +1,7 @@
 <div align="center">
     <h1>opencloud.js</h1>
     <a href="https://www.npmjs.com/package/@itsrune/opencloud.js"><img src="https://img.shields.io/npm/v/@itsrune/opencloud.js" alt="Version"></a>
-    <a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://packagephobia.com/badge?p=@itsrune/opencloud.js" alt="Install size"></a>
+    <a href="https://packagephobia.com/result?p=@itsrune/opencloud.js"><img src="https://packagephobia.com/badge?p=@itsrune/opencloud.js" alt="Install size"></a>
     <a href="https://github.com/ItsRune/opencloud.js"><img src="http://badges.github.io/stability-badges/dist/experimental.svg" alt="stability"></a>
     <br>
     <br>
