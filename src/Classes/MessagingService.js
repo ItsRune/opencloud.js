@@ -26,7 +26,7 @@ class MessagingService {
             });
 
             if (res.success) return {success: true, error: null};
-            throw new Error({success: res.status, error: res.statusText});
+            return res;
         } catch(error) {
             throw error;
         };

@@ -1,4 +1,6 @@
-const { createHash } = require('crypto');
+const packages = require('../Utils/packages.json');
+
+const { createHash } = require(packages.crypto);
 const PaginateCursor = require('../Modules/paginateCursor');
 const createQuery = require('../Modules/createQuery');
 const urls = require('../Utils/uris.json');
@@ -8,11 +10,11 @@ class DataStore {
      * Constructs the DataStore class.
      * @param {Universe} universe 
      */
-    constructor(universe) {
+    constructor(universe, _dataStoreName = "") {
         if (!universe.isUniverse && !universe.isUniverse()) throw new Error("universe must be provided");
 
         this._universe = universe;
-        this._dataStoreName = "";
+        this._dataStoreName = _dataStoreName;
         this._dataStoreType = "standard-datastores";
         this._dataStoreScope = "global";
         this._url = urls.OPENCLOUD_STANDARD_DATSTORES + `/${this._universe._id}`;
@@ -54,11 +56,9 @@ class DataStore {
             incrementBy: Number(amount)
         });
         try {
-            const res = await this._universe._fetch(url, 'POST', {
+            return await this._universe._fetch(url, 'POST', {
                 entryValue: amount
             });
-
-            return res;
         } catch(error) {
             throw { success: false, error: error.message };
         };
@@ -102,13 +102,11 @@ class DataStore {
         });
         
         try {
-            const res = await this._universe._fetch(url, "post", value, {
+            return await this._universe._fetch(url, "post", value, {
                 "Content-MD5": checkSum,
                 "roblox-entry-userids": JSON.stringify(userids),
                 "roblox-entry-attributes": (metadata) ? JSON.stringify(metadata) : ""
             });
-
-            return res;
         } catch(error) {
             throw { success: false, error: error.message };
         };
@@ -124,12 +122,12 @@ class DataStore {
     async ListDataStoresAsync(prefix, limit) {
         if (this._cache["datastores"]) return this._cache["datastores"];
 
-        prefix = prefix || "";
+        prefix = prefix || undefined;
         limit = limit || 100;
         
         try {
             const url = createQuery(`${this._url}/${this._dataStoreType}`, {
-                prefix, limit, cursor: ""
+                prefix, limit
             });
 
             const pages = new PaginateCursor(url, 'GET', {
@@ -151,11 +149,13 @@ class DataStore {
      */
     async RemoveAsync(key) {
         if (typeof(key) !== "string") return new Error("key must be a string");
-        const url = this._url + `/entries/entry?entryKey=${key}&scope=${this._dataStoreScope}&dataStoreName=${this._dataStoreName}`;
+        const url = createQuery(`${this._url}/${this._dataStoreType}/datastore/entries/entry`, {
+            entryKey: key,
+            scope: this._dataStoreScope,
+            dataStoreName: this._dataStoreName
+        });
         try {
-            const res = await this._universe._fetch(url, 'DELETE');
-
-            console.log(res);
+            return await this._universe._fetch(url, 'DELETE');
         } catch(error) {
             throw { success: false, error: error.message };
         };
@@ -167,18 +167,12 @@ class DataStore {
      * @returns DataStoreService
      */
     GetDataStore(dataStoreName) {
-        if (dataStoreName) {
-            this._dataStoreName = dataStoreName;
-        };
+        if (this._cache[dataStoreName]) return this._cache[dataStoreName];
+        
+        const newDataStore = new DataStore(this._universe, dataStoreName);
+        this._cache[dataStoreName] = newDataStore;
 
-        // if (dataStoreType) {
-        //     this._dataStoreType = dataStoreType;
-        // };
-
-        // if (dataStoreScope) {
-        //     this._dataStoreScope = dataStoreScope;
-        // };
-        return this;
+        return newDataStore;
     };
 
     // /**

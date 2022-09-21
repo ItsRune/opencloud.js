@@ -1,12 +1,10 @@
 <div align="center">
     <h1>opencloud.js</h1>
-    <a href="https://www.npmjs.com/package/@itsrune/opencloud.js"><img src="https://img.shields.io/npm/v/@itsrune/opencloud.js" alt="Version"></a>
-    <a href="https://packagephobia.com/result?p=@itsrune/opencloud.js"><img src="https://packagephobia.com/badge?p=@itsrune/opencloud.js" alt="Install size"></a>
-    <a href="https://github.com/ItsRune/opencloud.js"><img src="http://badges.github.io/stability-badges/dist/experimental.svg" alt="stability"></a>
-    <br>
+    <a href="https://www.npmjs.com/package/@itsrune/opencloud.js"><img alt="npm" src="https://img.shields.io/npm/v/@itsrune/opencloud.js?style=flat-square"></a>
+    <a href="https://packagephobia.com/result?p=@itsrune/opencloud.js"><img alt="npm bundle size" src="https://img.shields.io/bundlephobia/min/@itsrune/opencloud.js?label=size&style=flat-square"></a>
+    <a href="https://npmjs.com/package/@itsrune/opencloud.js"><img alt="npm" src="https://img.shields.io/npm/dw/@itsrune/opencloud.js?style=flat-square"></a>
     <br>
 </div>
-<!-- TODO: NPM tends to break the readme due to the badges above. -->
 
 ## Table of Contents
 
@@ -52,14 +50,15 @@ This `Universe` class holds services within itself and caches your api key, so y
 
 Datastores work just like with roblox. First we need to get the datastore itself then we are able to use it.
 ```js
-const DataStore = Universe.DataStoreService.GetDataStore("Coins");
+const CoinDataStore = Universe.DataStoreService.GetDataStore("Coins");
+const GemsDataStore = Universe.DataStoreService.GetDataStore("Gems");
 ```
 
 ### GetAsync <a name = "ds-getasync"></a>
 Once you've gotten the datastore, you can then increment / set / get async to it. All requests to the api are asynchronous, make sure you handle their Promise's appropriately.
 
 ```js
-DataStore.GetAsync("my-datastore-key").then((myCoins) => {
+CoinDataStore.GetAsync("my-datastore-key").then((myCoins) => {
 
 }).catch(err => console.error);
 ```
@@ -68,7 +67,7 @@ DataStore.GetAsync("my-datastore-key").then((myCoins) => {
 To update a datastore entry, just use `SetAsync`.
 ```js
 try {
-    await DataStore.SetAsync("my-datastore-key", 100);
+    await CoinDataStore.SetAsync("my-datastore-key", 100);
 } catch(err) {
     console.error(err);
 }
@@ -78,7 +77,7 @@ try {
 In this case we could use `IncrementAsync` to update this datastore due to `Coins` being an integer.
 ```js
 try {
-    await DataStore.IncrementAsync("my-datastore-key", 5); // Adds 5 coins.
+    await CoinDataStore.IncrementAsync("my-datastore-key", 5); // Adds 5 coins.
 } catch(err) {
     console.error(err);
 }
@@ -89,7 +88,7 @@ try {
 Let's say we want to delete an entry, how would we do that? Well, this is where `RemoveAsync` would be used.
 ```js
 try {
-    await DataStore.RemoveAsync("my-datastore-key");
+    await CoinDataStore.RemoveAsync("my-datastore-key");
 } catch(err) {
     console.error(err);
 }

@@ -1,0 +1,5 @@
+{
+    "fetch": "axios",
+    "crypto": "crypto",
+    "fs": "fs"
+}
