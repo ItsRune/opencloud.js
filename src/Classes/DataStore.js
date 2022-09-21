@@ -51,7 +51,6 @@ class DataStore {
             entryKey: key,
             scope: this._dataStoreScope,
             dataStoreName: this._dataStoreName,
-            exclusiveCreate: true,
             incrementBy: Number(amount)
         });
         try {
@@ -59,8 +58,7 @@ class DataStore {
                 entryValue: amount
             });
 
-            if (res.version) return {success: true, error: null};
-            return {success: false, error: res.statusText};
+            return res;
         } catch(error) {
             throw { success: false, error: error.message };
         };
@@ -87,32 +85,30 @@ class DataStore {
                 metadata = attributes.metadata;
             };
         };
-        value = JSON.stringify(value, null, 'utf8');
+        const valueJSON = JSON.stringify(value);
 
         // Might change 4MB datastore limit, who knows.
-        const valueBufferLen = Buffer.byteLength(value);
+        const valueBufferLen = Buffer.byteLength(valueJSON);
         if (valueBufferLen > 4e+6) {
             throw new Error("New datastore entry is larger than 4MB.");
         };
 
-        const valueMD5 = createHash('md5').update(value).digest('base64');
+        const valueMD5 = createHash("md5").update(valueJSON);
+        const checkSum = valueMD5.digest("base64");
         const url = createQuery(`${this._url}/${this._dataStoreType}/datastore/entries/entry`, {
             entryKey: key,
             scope: this._dataStoreScope,
-            dataStoreName: this._dataStoreName,
-            exclusiveCreate: true
+            dataStoreName: this._dataStoreName
         });
         
         try {
-            const res = await this._universe._fetch(url, 'POST', {}, {
-                "content-md5": valueMD5,
-                "Content-Length": valueBufferLen,
+            const res = await this._universe._fetch(url, "post", value, {
+                "Content-MD5": checkSum,
                 "roblox-entry-userids": JSON.stringify(userids),
-                "roblox-entry-attributes": JSON.stringify(attributes)
+                "roblox-entry-attributes": (metadata) ? JSON.stringify(metadata) : ""
             });
 
-            if (res.version) return {success: true, error: null};
-            return {success: false, error: res.statusText};
+            return res;
         } catch(error) {
             throw { success: false, error: error.message };
         };

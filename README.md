@@ -1,6 +1,11 @@
-# opencloud.js
-
-[![Experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
+<div align="center">
+    <h1>opencloud.js</h1>
+    <a href="https://www.npmjs.com/package/@itsrune/opencloud.js"><img src="https://img.shields.io/npm/v/@itsrune/opencloud.js" alt="Version"></a>
+    <a href="https://packagephobia.now.sh/result?p=node-fetch"><img src="https://packagephobia.com/badge?p=@itsrune/opencloud.js" alt="Install size"></a>
+    <a href="https://github.com/ItsRune/opencloud.js"><img src="http://badges.github.io/stability-badges/dist/experimental.svg" alt="stability"></a>
+    <br>
+    <br>
+</div>
 
 ## Table of Contents
 
@@ -22,7 +27,7 @@
 
 ## About <a name = "about"></a>
 
-`opencloud.js` is an api wrapper meant to simplify the complexities with requesting to roblox's opencloud apis. This wrapper is built to mimic roblox's luau functions.
+`opencloud.js` is an api wrapper meant to simplify the complexities with requesting to roblox's opencloud apis. This wrapper is built to mimic roblox's LuaU functions.
 
 ### Installing
 

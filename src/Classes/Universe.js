@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const axios = require('axios');
 const { OPENCLOUD_UNIVERSES } = require('../Utils/uris.json');
 const DataStore = require('./DataStore');
 const PlaceManagement = require('./PlaceManagement');
@@ -37,29 +38,30 @@ class Universe {
                 headers[key] = overWriteHeaders[key];
             };
 
-            if (body) {
+            if (typeof(JSON.stringify(body)) !== "string") {
                 body = JSON.stringify(body);
             };
 
-            const data = await fetch(url, {
+            const res = await axios(url, {
                 method,
                 headers,
-                body
+                data: body
             });
 
-            if (data.status === 401) throw new Error("Error: Invalid API Key");
-            if (data.status === 403) throw new Error("Error: Universe does not permit this service.");
-            if (data.status >= 500) throw new Error("Error: Internal Server Error");
-            if (data.status === 200) {
-                try {
-                    const json = await data.json();
-                    return json;
-                } catch(error) {
-                    return { success:true, error:null }
-                }
-            }
+            if (res.status === 401) throw new Error("Error: Invalid API Key");
+            if (res.status === 403) throw new Error("Error: Universe does not permit this service.");
+            if (res.status >= 500) throw new Error("Error: Internal Server Error");
+            if (res.status === 200) return { success: true, data: res.data };
 
-            throw new Error(`${data.statusText} (Code: ${data.status})`);
+            if (res.data) {
+                const keys = Object.keys(res.data);
+
+                if (keys.indexOf('errorDetails') != -1) {
+                    throw new Error(`${res.data.message} (Code: ${data.status})`);
+                };
+            };
+
+            throw new Error(`${res.statusText} (Code: ${res.status})`);
         } catch(error) {
             throw error;
         };
