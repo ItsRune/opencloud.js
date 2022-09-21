@@ -6,6 +6,7 @@
     <br>
     <br>
 </div>
+<!-- TODO: NPM tends to break the readme due to the badges above. -->
 
 ## Table of Contents
 
