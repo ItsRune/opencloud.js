@@ -6,7 +6,7 @@
     "node-fetch": "^2.6.7"
   },
   "name": "@itsrune/opencloud.js",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A simple NodeJS supported OpenCloud api wrapper similarly typed to roblox lua's functions.",
   "main": "index.js",
   "scripts": {
