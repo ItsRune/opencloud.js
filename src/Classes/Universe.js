@@ -1,15 +1,26 @@
 const packages = require('../Utils/packages.json');
-
 const axios = require(packages.fetch);
+
 const { OPENCLOUD_UNIVERSES } = require('../Utils/uris.json');
 const DataStore = require('./DataStore');
 const PlaceManagement = require('./PlaceManagement');
 const MessagingService = require('./MessagingService');
+const moment = require('moment/moment');
 
 class Universe {
-    constructor(universeId, apiKey) {
+    /**
+     * Initializes the Universe class.
+     * @param {Number} universeId 
+     * @param {String} apiKey 
+     * @param {{useDataStoreCache: Boolean, useMomentJs: Boolean}} [options] 
+     */
+    constructor(universeId, apiKey, options) {
+        options = (typeof(options) === "object") ? options : { useDataStoreCache: false, useMomentJs: false };
+        
+        this._options = options;
         this._id = universeId;
         this._apiKey = apiKey;
+        this._dsCache = {};
         this._url = OPENCLOUD_UNIVERSES + `/${this._id}`;
         
         this.DataStoreService = new DataStore(this);
@@ -18,7 +29,7 @@ class Universe {
     };
 
     /**
-     * Sends a request with the api key to the universe.
+     * Sends a request with the api key to the opencloud's api point.
      * @param {String} url 
      * @param {String} method 
      * @param {object | undefined} body 
@@ -48,8 +59,29 @@ class Universe {
                 headers,
                 data: body
             });
+
+            let data = res.data;
+            let keys = Object.keys(data);
+
+            if (keys.indexOf("entryValue") != -1) {
+                data = JSON.parse(data.entryValue);
+            };
+
+            // TODO: Implement datastore caching with [key] = value.
+            // if (this._options.useDataStoreCache) {
+                
+            // }
+
+            if (this._options.useMomentJs) {
+                let timeMap = keys.map((v) => v.toLowerCase().includes("time"));
+                if (timeMap.length > 0) {
+                    timeMap.forEach((v, i) => {
+                        if (v == true) data[keys[i]] = moment(data[keys[i]]);
+                    });
+                };
+            }
             
-            if (res.status === 200) return { success: true, data: res.data };
+            if (res.status === 200) return { success: true, data };
             return { success: true, error: null };
         } catch(error) {
             if (!error.response) throw error;
@@ -72,8 +104,24 @@ class Universe {
     };
 
     /**
+     * Changes api key.
+     * @param {String} apiKey
+     */
+     setApiKey(apiKey) {
+        this._apiKey = apiKey;
+    };
+
+    /**
+     * Changes the universe id.
+     * @param {Number} universeId
+     */
+    setUniverseId(universeId) {
+        this._id = universeId;
+    };
+
+    /**
      * For internal uses.
-     * @returns isUniverseClass
+     * @returns {Boolean}
      */
     isUniverse() {
         return true;

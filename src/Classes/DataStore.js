@@ -8,9 +8,9 @@ const urls = require('../Utils/uris.json');
 class DataStore {
     /**
      * Constructs the DataStore class.
-     * @param {Universe} universe 
+     * @param {Universe} universe
      */
-    constructor(universe, _dataStoreName = "") {
+    constructor(universe,  _dataStoreName = "") {
         if (!universe.isUniverse && !universe.isUniverse()) throw new Error("universe must be provided");
 
         this._universe = universe;
@@ -113,6 +113,20 @@ class DataStore {
     };
 
     /**
+     * Updates the data at a specific key with the new value returned from the function.
+     * @param {String} key
+     * @param {Function} func
+     */
+    async UpdateAsync(key, func) {
+        const data = await this.GetAsync(key);
+        if (!data.success) throw new Error("Failed to get data from datastore.");
+
+        const newData = func(data.data);
+        if (!newData) throw new Error("Function does not return a new value.");
+        return await this.SetAsync(key, newData);
+    };
+
+    /**
      * Gets a list of all the datastore keys.
      * @param {String | undefined} prefix
      * @param {Number | undefined} limit
@@ -174,14 +188,6 @@ class DataStore {
 
         return newDataStore;
     };
-
-    // /**
-    //  * Bulk saves to a datastore. (Maybe later.)
-    //  * @param {Array<{key: String, value: any, attributes: {userids: Array<int64>, metadata: Array<any>}}>} entries 
-    //  */
-    // async SetBulkAsync(entries) {
-
-    // }
 };
 
 module.exports = DataStore;
