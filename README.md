@@ -61,7 +61,6 @@ The `Universe` class holds services within itself and caches your api key, so yo
 
 ```js
 const myUniverse = new Universe(00000, "API_KEY", {
-    useDataStoreCache: false,
     useMomentJs: false
 })
 ```
