@@ -1,25 +1,8 @@
-<style>
-    .stackable {
-        background-color: #62B2FF;
-        color: #fff;
-        padding: 0rem 0.35rem;
-        border-radius: 1rem;
-        border: 1px solid #75AADD;
-        font-size: 0.65rem;
-        font-weight: 600;
-        line-height: 1rem;
-        text-align: center;
-        text-transform: uppercase;
-        white-space: nowrap;
-        display: inline-block;
-        margin: 0.25rem;
-    }
-</style>
-
 <div align="center">
     <h1>opencloud.js</h1>
     <a href="https://www.npmjs.com/package/@itsrune/opencloud.js"><img alt="npm" src="https://img.shields.io/npm/v/@itsrune/opencloud.js?style=flat-square"></a>
     <a href="https://packagephobia.com/result?p=@itsrune/opencloud.js"><img alt="npm bundle size" src="https://img.shields.io/bundlephobia/min/@itsrune/opencloud.js?label=size&style=flat-square"></a>
+    <img alt="GitHub" src="https://img.shields.io/github/license/ItsRune/opencloud.js?color=orange&style=flat-square">
     <!-- <a href="https://npmjs.com/package/@itsrune/opencloud.js"><img alt="npm" src="https://img.shields.io/npm/dw/@itsrune/opencloud.js?style=flat-square"></a> -->
     <br>
 </div>
@@ -29,12 +12,12 @@
 - [About](#about)
 - [Usage](#usage)
     - [Universe](#universe)
-        - [setApiKey](#u-setApiKey)<span class="stackable">Chains</span>
-        - [setUniverseId](#u-setUniverseId)<span class="stackable">Chains</span>
+        - [setApiKey](#u-setApiKey)
+        - [setUniverseId](#u-setUniverseId)
     - [DataStores](#datastores)
-        - [GetDataStore](#ds-get)<span class="stackable">Chains</span>
-        - [GetOrderedDataStore](#ds-getordered)<span class="stackable">Chains</span>
-        - [SetScope](#ds-scope)<span class="stackable">Chains</span>
+        - [GetDataStore](#ds-get)
+        - [GetOrderedDataStore](#ds-getordered)
+        - [SetScope](#ds-scope)
         - [GetAsync](#ds-getasync)
         - [SetAsync](#ds-setasync)
         - [UpdateAsync](#ds-updateasync)
@@ -49,18 +32,17 @@
     - [Pagination](#pagination)
         - [GetNextPageAsync](#p-gnpa)
         - [GetPreviousPageAsync](#p-gppa)
-    <!-- - [Assets](#assets)
+    - [Assets](#assets)
         - [GetOperation](#a-operation)
-        - [GetOperationId](#a-getopid)<span class="stackable">Chains</span>
-        - [SetCreator](#a-creator)<span class="stackable">Chains</span>
-        - [SetPrice](#a-price)<span class="stackable">Chains</span>
+        - [SetCreator](#a-creator)
+        - [SetPrice](#a-price)
         - [CreateAsset](#a-create)
-        - [UpdateAsset](#a-update) -->
+        - [UpdateAsset](#a-update)
 
 ## About <a name = "about"></a>
 `opencloud.js` is an api wrapper meant to simplify the complexities with requesting to roblox's opencloud apis. This wrapper is built to mimic roblox's LuaU functions.
 
-## Chains
+<!-- ## Chains
 Some functions are marked with a `Chains` tag. These are methods in which return the current class, allowing you to chain methods together. 
 
 For example:
@@ -69,7 +51,7 @@ Universe.Assets
     .SetCreator("Group", 00000000)
     .SetPrice(100)
     .CreateAsset(...[arguments]);
-```
+``` -->
 
 ### Installing
 
@@ -113,7 +95,7 @@ const myUniverse = new Universe(00000000, "API_KEY", {
 });
 ```
 
-### setApiKey <a name = "u-setApiKey"></a> <span class="stackable">Chains</span>
+### setApiKey <a name = "u-setApiKey"></a> 
 This function will overwrite the current `apiKey`
 
 `Key` | `String` | The new api key.
@@ -122,7 +104,7 @@ This function will overwrite the current `apiKey`
 Universe.setApiKey("NEW-API-KEY");
 ```
 
-### setUniverseId <a name = "u-setUniverseId"></a> <span class="stackable">Chains</span>
+### setUniverseId <a name = "u-setUniverseId"></a> 
 This function will overwrite the current `universeId` for the new one. If you don't want that, I recommend creating a new universe.
 
 `universeId` | `Number` | The new universe id.
@@ -134,7 +116,7 @@ Universe.setUniverseId(00000);
 ## DataStores <a name = "datastores"></a>
 Datastores work just like with roblox. First we need to get the datastore itself then we are able to use it.
 
-### GetDataStore <a name = "ds-get"></a><a name = "ds-scope"></a> <span class="stackable">Chains</span>
+### GetDataStore <a name = "ds-get"></a><a name = "ds-scope"></a> 
 
 `dataStoreName` | `String` | Name of the datastore.
 `scope` | `String` | Scope of the datastore.
@@ -144,7 +126,7 @@ const CoinDataStore = Universe.DataStoreService.GetDataStore("Coins", "coins");
 const GemsDataStore = Universe.DataStoreService.GetDataStore("Gems", "global");
 ```
 
-### GetOrderedDataStore <a name = "ds-getordered"></a><a name = "ds-scope"></a> <span class="stackable">Chains</span>
+### GetOrderedDataStore <a name = "ds-getordered"></a><a name = "ds-scope"></a> 
 
 `dataStoreName` | `String` | Name of the datastore.
 `scope` | `String` | Scope of the datastore.
@@ -153,7 +135,7 @@ const GemsDataStore = Universe.DataStoreService.GetDataStore("Gems", "global");
 const coinOrderedDataStore = Universe.DataStoreService.GetOrderedDataStore("Coins", "coins");
 ```
 
-### SetScope <a name = "ds-scope"></a> <span class="stackable">Chains</span>
+### SetScope <a name = "ds-scope"></a> 
 This function will overwrite the current `scope` for the new one.
 
 `scope` | `String` | The new scope.
@@ -328,10 +310,10 @@ try {
 };
 ```
 
-<!-- ## Assets <a name = "assets"></a>
+## Assets <a name = "assets"></a>
 This section allows for developers to upload assets to Roblox's library and manage them.
 
-### GetOperationId <a name = "a-getopid"></a> <span class="stackable">Chains</span>
+### GetOperationId <a name = "a-getopid"></a> 
 Gets an operation's id by it's asset name. Caching is required.
 
 ```js
@@ -345,7 +327,7 @@ Operations are automatically cached by this wrapper, you can access them by usin
 Universe.Assets.GetOperation(operationId).then(console.log).catch(console.error);
 ```
 
-### SetCreator <a name = "a-setcreator"></a> <span class="stackable">Chains</span>
+### SetCreator <a name = "a-setcreator"></a> 
 This method is required for using `CreateAsset`, it sets the creator of the asset.
 
 `creatorType` | `String` | The type of creator to set. (User or Group)
@@ -355,7 +337,7 @@ This method is required for using `CreateAsset`, it sets the creator of the asse
 Universe.Assets.SetCreator("User", 000000);
 ```
 
-### SetPrice <a name = "a-setprice"></a> <span class="stackable">Chains</span>
+### SetPrice <a name = "a-setprice"></a> 
 This method is required for using `CreateAsset`, it sets the price of the asset.
 
 `price` | `Number` | The price of the asset.
@@ -366,4 +348,4 @@ Universe.Assets.SetPrice(0);
 
 ### CreateAsset <a name = "a-create"></a>
 
-### UpdateAsset <a name = "a-update"></a> -->
+### UpdateAsset <a name = "a-update"></a>
