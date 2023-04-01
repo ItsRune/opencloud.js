@@ -1,6 +1,11 @@
 {
     "OPENCLOUD_STANDARD_DATSTORES": "https://apis.roblox.com/datastores/v1/universes",
+    "OPENCLOUD_ORDERED_DATASTORES": "https://apis.roblox.com/ordered-data-stores/v1/universes",
+
     "OPENCLOUD_MESSAGES": "https://apis.roblox.com/messaging-service/v1/universes",
     "OPENCLOUD_PLACE_MANAGEMENT": "https://apis.roblox.com/universes/v1",
-    "OPENCLOUD_UNIVERSES": "https://develop.roblox.com/v1/universes"
+    "OPENCLOUD_UNIVERSES": "https://develop.roblox.com/v1/universes",
+    "OPENCLOUD_ASSETS": "https://apis.roblox.com/assets/v1",
+
+    "GROUP_SERVICE": "https://groups.roblox.com"
 }

@@ -1,14 +1,14 @@
-const packages = require('../Utils/packages.json');
-
-const axios = require(packages.fetch);
+const axios = require("axios");
 
 class PaginateCursor {
-    constructor(url, method, headers, body, dataName = "datastores") {
+    constructor(url, method, headers, body, dataName = "datastores", customCursor = "nextPageCursor", customUrlParam = "cursor") {
         this._url = url;
         this._method = method;
         this._headers = headers;
         this._body = (method !== "GET" && method !== "HEAD") ? JSON.stringify(body) || "" : undefined;
         this._nextPageCursor = "";
+        this._pageCursorName = customCursor;
+        this._urlParam = customUrlParam;
         this._cursorCache = [null];
         this._cursorIndex = 0;
         this._dataName = dataName;
@@ -22,7 +22,7 @@ class PaginateCursor {
     async GetNextPageAsync() {
         if (this._nextPageCursor === null) return null;
         try {
-            const url = (this._cursorIndex === 0) ? this._url : this._url + `?cursor=${this._nextPageCursor}`;
+            const url = (this._cursorIndex === 0) ? this._url : this._url + `?${this._urlParam}=${this._nextPageCursor}`;
             const res = await axios(url, {
                 method: this._method,
                 headers: this._headers,
@@ -30,8 +30,8 @@ class PaginateCursor {
             });
             const json = res.data;
 
-            if (json.nextPageCursor !== '' && json.nextPageCursor !== null) {
-                this._cursorCache.push(json.nextPageCursor);
+            if (json[this._pageCursorName] !== '' && json[this._pageCursorName] !== null) {
+                this._cursorCache.push(json[this._pageCursorName]);
                 this._cursorIndex++;
 
                 this.content = json[this._dataName];
@@ -53,7 +53,7 @@ class PaginateCursor {
     async GetCurrentPageAsync() {
         try {
             if (this.content.length > 0) return this.content;
-            const url = (this._cursorIndex === 0) ? this._url : this._url + `?cursor=${this._nextPageCursor}`;
+            const url = (this._cursorIndex === 0) ? this._url : this._url + `?${this._urlParam}=${this._nextPageCursor}`;
             const res = await axios(url, {
                 method: this._method,
                 headers: this._headers,
@@ -78,7 +78,7 @@ class PaginateCursor {
             this._cursorIndex--;
             this._nextPageCursor = this._cursorCache[this._cursorIndex] || null;
             
-            const url = (this._cursorIndex === 0) ? this._url : this._url + `?cursor=${this._nextPageCursor}`;
+            const url = (this._cursorIndex === 0) ? this._url : this._url + `?${this._urlParam}=${this._nextPageCursor}`;
             const res = await axios(url, {
                 method: this._method,
                 headers: this._headers,

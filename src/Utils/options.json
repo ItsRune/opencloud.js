@@ -1,0 +1,9 @@
+{
+    "useDataStoreCache": ["boolean", false],
+    "cacheUpdateInterval": ["number", 1000],
+    "useMomentJsForTimeStrings": ["boolean", false],
+
+    "dataStoreScope": ["string", "global"],
+    "dataStoreName": ["string", "myDataStore"],
+    "dataStoreType": ["string", "standard-datastores"]
+}

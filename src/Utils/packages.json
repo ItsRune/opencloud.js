@@ -1,6 +1,0 @@
-{
-    "fetch": "axios",
-    "crypto": "crypto",
-    "fs": "fs",
-    "moment": "moment"
-}

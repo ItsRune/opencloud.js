@@ -1,32 +1,62 @@
-const packages = require('../Utils/packages.json');
-const axios = require(packages.fetch);
+const axios = require('axios');
+const moment = require('moment/moment');
 
 const { OPENCLOUD_UNIVERSES } = require('../Utils/uris.json');
 const DataStore = require('./DataStore');
 const PlaceManagement = require('./PlaceManagement');
 const MessagingService = require('./MessagingService');
-const moment = require('moment/moment');
+const Assets = require('./Assets');
+const checkOptions = require('../Modules/checkOptions');
+const createCustomError = require('../Modules/createCustomError');
 
 class Universe {
     /**
      * Initializes the Universe class.
      * @param {Number} universeId 
      * @param {String} apiKey 
-     * @param {{useDataStoreCache: Boolean, useMomentJs: Boolean}} [options] 
+     * @param {{
+     *   useMomentJs: Boolean,
+     *   useDataStoreCache: Boolean,
+     *   cacheUpdateInterval: Number,
+     *   dataStoreType: String,
+     *   dataStoreScope: String
+     * }} [options] 
      */
     constructor(universeId, apiKey, options) {
-        options = (typeof(options) === "object") ? options : { useDataStoreCache: false, useMomentJs: false };
-        
-        this._options = options;
+        this._options = checkOptions(options);
         this._id = universeId;
         this._apiKey = apiKey;
-        this._dsCache = {};
         this._url = OPENCLOUD_UNIVERSES + `/${this._id}`;
+        this._dsCache = {};
         
-        this.DataStoreService = new DataStore(this);
+        this.DataStoreService = new DataStore(this, this._options.dataStoreName, this._options.dataStoreType, this._options.dataStoreScope);
         this.PlaceManagementService = new PlaceManagement(this);
         this.MessagingService = new MessagingService(this);
+        this.Assets = new Assets(this);
+
+        if (!this._apiKey && !this._options["hideWarnings"]) {
+            console.log("[WARNING]: Opencloud.js was not provided with an API key. If you're planning on adding it later, you can ignore this warning.");
+        };
     };
+
+    /**
+     * Parses the url to get the query parameters.
+     * @param {String} url 
+     * @param {Array<String>} toLookFor 
+     * @returns {{[paramName: String]: any}} result
+     */
+    #getUrlParams(url, toLookFor) {
+        const params = url.split("?")[1].split("&");
+        const parsedParams = params.map(v => toLookFor.indexOf(v.split("=")[0]) != -1 ? v : null).filter(v => v !== null);
+        let result = {};
+        
+        for (let i = 0; i < parsedParams.length; i++) {
+            const param = parsedParams[i].split("=");
+            result[param[0]] = param[1];
+        }
+
+        return result;
+    }
 
     /**
      * Sends a request with the api key to the opencloud's api point.
@@ -44,13 +74,28 @@ class Universe {
                 'Content-Type': "application/json"
             };
 
+            if (this._options.useDataStoreCache && url.match(/datastore\/entries\/entry/)) {
+                let key = "";
+
+                if (method.toLowerCase() === "get" || method.toLowerCase() === "head") {
+                    const params = this.#getUrlParams(url, ["dataStoreName", "scope", "entryKey"]);
+                    key = `${params.entryKey}_${params.scope}_${params.dataStoreName}`;
+                } else key = `${body.entryKey}_${body.scope}_${body.dataStoreName}`;
+                
+                if (this._dsCache[key] && Date.now() > this._dsCache[key][1]) {
+                    return {success:true, data: this._dsCache[key][0], fromCache: true};
+                };
+            };
+
             const headerKeys = Object.keys(overWriteHeaders);
             for (let i = 0; i < headerKeys.length; i++) {
                 const key = headerKeys[i];
+                if (key == "x-api-key") continue; // Prevent overwriting the api key.
+                
                 headers[key] = overWriteHeaders[key];
             };
 
-            if (typeof(JSON.stringify(body)) !== "string") {
+            if (headers['Content-Type'] == "application/json" && typeof(JSON.stringify(body)) !== "string") {
                 body = JSON.stringify(body);
             };
 
@@ -67,12 +112,34 @@ class Universe {
                 data = JSON.parse(data.entryValue);
             };
 
-            // TODO: Implement datastore caching with [key] = value.
-            // if (this._options.useDataStoreCache) {
-                
-            // }
+            if (this._options.useDataStoreCache && url.match(/datastore\/entries\/entry/) !== null) {
+                if (method.toLowerCase() == "post") {
+                    const key = `${body.entryKey}_${body.scope}_${body.dataStoreName}`;
+                    if (this._dsCache[key] && Date.now() > this._dsCache[key][1]) {
+                        this._dsCache[key][1] = Date.now() + this._options.cacheUpdateInterval;
+                        this._dsCache[key][0] = body.entryValue;
+                    } else if (!this._dsCache[key]) {
+                        this._dsCache[key] = [data, Date.now()];
+                    };
+                } else if (method.toLowerCase() == "get") {
+                    const toLookFor = [
+                        "entryKey",
+                        "scope",
+                        "dataStoreName"
+                    ];
+                    const parsedParams = this.#getUrlParams(url, toLookFor);
+                    const key = `${parsedParams.entryKey}_${parsedParams.scope}_${parsedParams.dataStoreName}`;
 
-            if (this._options.useMomentJs) {
+                    if (this._dsCache[key] && Date.now() > this._dsCache[key][1]) {
+                        this._dsCache[key][1] = Date.now();
+                        this._dsCache[key][0] = data;
+                    } else if (!this._dsCache[key]) {
+                        this._dsCache[key] = [data, Date.now()];
+                    };
+                };
+            };
+            
+            if (this._options.useMomentJsForTimeStrings) {
                 let timeMap = keys.map((v) => v.toLowerCase().includes("time"));
                 if (timeMap.length > 0) {
                     timeMap.forEach((v, i) => {
@@ -81,25 +148,39 @@ class Universe {
                 };
             }
             
-            if (res.status === 200) return { success: true, data };
+            if (res.status === 200) return { success: true, data, fromCache: false};
             return { success: true, error: null };
         } catch(error) {
-            if (!error.response) throw error;
-            const res = error.response
+            if (!error.response) throw createCustomError(error.message);
 
-            if (res.status === 401) throw new Error("Error: Invalid API Key");
-            if (res.status === 403) throw new Error("Error: API key does not permit this service.");
-            if (res.status >= 500) throw new Error("Error: Internal Server Error");
+            const res = error.response
+            const status = res.status
+            const log = createCustomError;
+
+            switch(status) {
+                case 401:
+                    throw log("API key is invalid.", status);
+                case 403:
+                    throw log("API key does not permit this service.", status);
+                case 404:
+                    throw log("Resource not found.", status);
+                case 415:
+                    throw log("Unsupported Media Type", status);
+                case 429:
+                    throw log("Too many requests.", status);
+                case 500:
+                    throw log("Internal Server Error", status);
+            };
 
             if (res.data) {
                 const keys = Object.keys(res.data);
 
                 if (keys.indexOf('errorDetails') != -1) {
-                    throw new Error(`${res.data.message} (Code: ${res.status})`);
+                    throw log(res);
                 };
             };
 
-            throw new Error(`${res.statusText} (Code: ${res.status})`);
+            throw log(res);
         };
     };
 
@@ -109,6 +190,7 @@ class Universe {
      */
      setApiKey(apiKey) {
         this._apiKey = apiKey;
+        return this;
     };
 
     /**
@@ -117,6 +199,7 @@ class Universe {
      */
     setUniverseId(universeId) {
         this._id = universeId;
+        return this;
     };
 
     /**

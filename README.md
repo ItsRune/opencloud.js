@@ -1,3 +1,21 @@
+<style>
+    .stackable {
+        background-color: #62B2FF;
+        color: #fff;
+        padding: 0rem 0.35rem;
+        border-radius: 1rem;
+        border: 1px solid #75AADD;
+        font-size: 0.65rem;
+        font-weight: 600;
+        line-height: 1rem;
+        text-align: center;
+        text-transform: uppercase;
+        white-space: nowrap;
+        display: inline-block;
+        margin: 0.25rem;
+    }
+</style>
+
 <div align="center">
     <h1>opencloud.js</h1>
     <a href="https://www.npmjs.com/package/@itsrune/opencloud.js"><img alt="npm" src="https://img.shields.io/npm/v/@itsrune/opencloud.js?style=flat-square"></a>
@@ -11,9 +29,12 @@
 - [About](#about)
 - [Usage](#usage)
     - [Universe](#universe)
-        - [setApiKey](#u-setApiKey)
-        - [setUniverseId](#u-setUniverseId)
+        - [setApiKey](#u-setApiKey)<span class="stackable">Chains</span>
+        - [setUniverseId](#u-setUniverseId)<span class="stackable">Chains</span>
     - [DataStores](#datastores)
+        - [GetDataStore](#ds-get)<span class="stackable">Chains</span>
+        - [GetOrderedDataStore](#ds-getordered)<span class="stackable">Chains</span>
+        - [SetScope](#ds-scope)<span class="stackable">Chains</span>
         - [GetAsync](#ds-getasync)
         - [SetAsync](#ds-setasync)
         - [UpdateAsync](#ds-updateasync)
@@ -21,16 +42,34 @@
         - [RemoveAsync](#ds-removeasync)
         - [ListDataStoresAsync](#ds-getkeys)
     - [MessagingService](#messages)
+        - [PublishAsync](#ms-publishasync)
     - [Place Management](#place-manage)
         - [PublishAsync](#pm-publish)
         - [SaveAsync](#pm-save)
     - [Pagination](#pagination)
         - [GetNextPageAsync](#p-gnpa)
         - [GetPreviousPageAsync](#p-gppa)
+    <!-- - [Assets](#assets)
+        - [GetOperation](#a-operation)
+        - [GetOperationId](#a-getopid)<span class="stackable">Chains</span>
+        - [SetCreator](#a-creator)<span class="stackable">Chains</span>
+        - [SetPrice](#a-price)<span class="stackable">Chains</span>
+        - [CreateAsset](#a-create)
+        - [UpdateAsset](#a-update) -->
 
 ## About <a name = "about"></a>
-
 `opencloud.js` is an api wrapper meant to simplify the complexities with requesting to roblox's opencloud apis. This wrapper is built to mimic roblox's LuaU functions.
+
+## Chains
+Some functions are marked with a `Chains` tag. These are methods in which return the current class, allowing you to chain methods together. 
+
+For example:
+```js
+Universe.Assets
+    .SetCreator("Group", 00000000)
+    .SetPrice(100)
+    .CreateAsset(...[arguments]);
+```
 
 ### Installing
 
@@ -56,16 +95,25 @@ The `Universe` class holds services within itself and caches your api key, so yo
 
 ### Universe Options
 <!-- `useDataStoreCache` | `Boolean` | Will cache values when they're changed / fetched. -->
-`useMomentJs` | `Boolean` | Will convert any times to [Moment.js](https://momentjs.com/) classes.
-<p style="font-size: 12px;"> More options coming soon!</p>
+
+| Option | Type | Description |
+| -------- | -------- | -------- |
+| `useMomentJs` | `Boolean` | Will convert any times to [Moment.js](https://momentjs.com/) classes. |
+| `useDataStoreCache` | `Boolean` | Determines whether `DataStoreService` should cache keys / values. |
+| `cacheUpdateInterval` | `Number` | Determines how often the cache should update. |
+| `dataStoreScope` | `String` | Changes the scope of the DataStore. |
+| `hideWarnings` | `Boolean` | Hides warnings from the console. |
 
 ```js
-const myUniverse = new Universe(00000, "API_KEY", {
-    useMomentJs: false
-})
+const myUniverse = new Universe(00000000, "API_KEY", {
+    useMomentJs: false,
+    useDataStoreCache: true,
+    cacheUpdateInterval: 120000, // 2 minutes
+    dataStoreScope: "global"
+});
 ```
 
-### setApiKey <a name = "u-setApiKey"></a>
+### setApiKey <a name = "u-setApiKey"></a> <span class="stackable">Chains</span>
 This function will overwrite the current `apiKey`
 
 `Key` | `String` | The new api key.
@@ -74,7 +122,7 @@ This function will overwrite the current `apiKey`
 Universe.setApiKey("NEW-API-KEY");
 ```
 
-### setUniverseId <a name = "u-setUniverseId"></a>
+### setUniverseId <a name = "u-setUniverseId"></a> <span class="stackable">Chains</span>
 This function will overwrite the current `universeId` for the new one. If you don't want that, I recommend creating a new universe.
 
 `universeId` | `Number` | The new universe id.
@@ -86,11 +134,33 @@ Universe.setUniverseId(00000);
 ## DataStores <a name = "datastores"></a>
 Datastores work just like with roblox. First we need to get the datastore itself then we are able to use it.
 
+### GetDataStore <a name = "ds-get"></a><a name = "ds-scope"></a> <span class="stackable">Chains</span>
+
 `dataStoreName` | `String` | Name of the datastore.
+`scope` | `String` | Scope of the datastore.
 
 ```js
-const CoinDataStore = Universe.DataStoreService.GetDataStore("Coins");
-const GemsDataStore = Universe.DataStoreService.GetDataStore("Gems");
+const CoinDataStore = Universe.DataStoreService.GetDataStore("Coins", "coins");
+const GemsDataStore = Universe.DataStoreService.GetDataStore("Gems", "global");
+```
+
+### GetOrderedDataStore <a name = "ds-getordered"></a><a name = "ds-scope"></a> <span class="stackable">Chains</span>
+
+`dataStoreName` | `String` | Name of the datastore.
+`scope` | `String` | Scope of the datastore.
+
+```js
+const coinOrderedDataStore = Universe.DataStoreService.GetOrderedDataStore("Coins", "coins");
+```
+
+### SetScope <a name = "ds-scope"></a> <span class="stackable">Chains</span>
+This function will overwrite the current `scope` for the new one.
+
+`scope` | `String` | The new scope.
+
+```js
+CoinDataStore.SetScope("global");
+GemsDataStore.SetScope("global");
 ```
 
 ### GetAsync <a name = "ds-getasync"></a>
@@ -180,6 +250,7 @@ Note: This function will return the json data from the request, it will not be f
 ## Messaging Service <a name = "messages"></a>
 Messaging via external applications are incredibly powerful when it comes to roblox apps. Example of use: You have an update coming up and want to alert users before a shutdown occurs.
 
+### PublishAsync <a name = "ms-publishasync"></a>
 `Topic` | `String` | The topic of the message.
 `Message` | `String` | The message to send.
 
@@ -256,3 +327,43 @@ try {
     console.error(err);
 };
 ```
+
+<!-- ## Assets <a name = "assets"></a>
+This section allows for developers to upload assets to Roblox's library and manage them.
+
+### GetOperationId <a name = "a-getopid"></a> <span class="stackable">Chains</span>
+Gets an operation's id by it's asset name. Caching is required.
+
+```js
+const operationId = Universe.Assets.GetOperationId("MyAsset");
+```
+
+### GetOperation <a name = "a-operation"></a>
+Operations are automatically cached by this wrapper, you can access them by using `GetOperationId` with the asset's name. Then you can use this method to get the operation's information.
+
+```js
+Universe.Assets.GetOperation(operationId).then(console.log).catch(console.error);
+```
+
+### SetCreator <a name = "a-setcreator"></a> <span class="stackable">Chains</span>
+This method is required for using `CreateAsset`, it sets the creator of the asset.
+
+`creatorType` | `String` | The type of creator to set. (User or Group)
+`creatorId` | `Number` | The id of the creator.
+
+```js
+Universe.Assets.SetCreator("User", 000000);
+```
+
+### SetPrice <a name = "a-setprice"></a> <span class="stackable">Chains</span>
+This method is required for using `CreateAsset`, it sets the price of the asset.
+
+`price` | `Number` | The price of the asset.
+
+```js
+Universe.Assets.SetPrice(0);
+```
+
+### CreateAsset <a name = "a-create"></a>
+
+### UpdateAsset <a name = "a-update"></a> -->
