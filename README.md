@@ -24,6 +24,7 @@
         - [IncrementAsync](#ds-incasync)
         - [RemoveAsync](#ds-removeasync)
         - [ListDataStoresAsync](#ds-getkeys)
+        - [ListAsync](#ods-list)
     - [MessagingService](#messages)
         - [PublishAsync](#ms-publishasync)
     - [Place Management](#place-manage)
@@ -126,13 +127,24 @@ const CoinDataStore = Universe.DataStoreService.GetDataStore("Coins", "coins");
 const GemsDataStore = Universe.DataStoreService.GetDataStore("Gems", "global");
 ```
 
-### GetOrderedDataStore <a name = "ds-getordered"></a><a name = "ds-scope"></a> 
+### GetOrderedDataStore <a name = "ds-getordered"></a>
 
 `dataStoreName` | `String` | Name of the datastore.
 `scope` | `String` | Scope of the datastore.
 
 ```js
 const coinOrderedDataStore = Universe.DataStoreService.GetOrderedDataStore("Coins", "coins");
+```
+
+### ListAsync <a name = "ods-list"></a>
+Lists the entries in the datastore based off the sort order and filters. Returns a <a name="pagination">Pages</a> class.
+
+`sortOrder` | `String` | The sort order of the datastore.
+`limit` | `Number` | The limit of the datastore.
+`filters` | `String` | The filters of the datastore.
+
+```js
+const myCoins = await coinOrderedDataStore.ListAsync("Asc", 10, "entry>=1&&entry<=10");
 ```
 
 ### SetScope <a name = "ds-scope"></a> 
